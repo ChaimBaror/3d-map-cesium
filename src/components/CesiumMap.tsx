@@ -16,6 +16,7 @@ if (cesiumIonToken) {
 const CesiumMap = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [activeRouteDroneId, setActiveRouteDroneId] = useState<string | null>(null);
+    const [editingRouteDroneId, setEditingRouteDroneId] = useState<string | null>(null);
     const [isPickingInitialLocation, setIsPickingInitialLocation] = useState(false);
     const [tempInitialLocation, setTempInitialLocation] = useState<Point | null>(null);
     const [terrainTileset, setTerrainTileset] = useState<any>(null);
@@ -146,52 +147,58 @@ const CesiumMap = () => {
                     }}
                 />
 
-                {drones.map(drone => (
-                    <React.Fragment key={drone.id}>
-                        <MapDeviceEntity 
-                            point={drone.point} 
-                            name={drone.name} 
-                            isMoving={!drone.isPaused && drone.route.length > 0} 
-                            sensorInfo={drone.sensorInfo}
-                            modelUri={drone.modelUri}
-                        />
-                        {drone.route.length > 0 && (
-                            <Entity name={`Route for ${drone.name}`}>
-                                <PolylineGraphics
-                                    positions={[
-                                        Cartesian3.fromDegrees(drone.point.lon, drone.point.lat, drone.point.hae),
-                                        ...drone.route.map(p => Cartesian3.fromDegrees(p.lon, p.lat, p.hae))
-                                    ]}
-                                    width={3}
-                                    material={Color.YELLOW.withAlpha(0.6)}
-                                />
-                            </Entity>
-                        )}
-                        {drone.route.map((p, index) => (
-                            <Entity
-                                key={`${drone.id}-point-${index}`}
-                                name={`${drone.name} - Point ${index + 1}`}
-                                position={Cartesian3.fromDegrees(p.lon, p.lat, p.hae)}
-                                point={{
-                                    pixelSize: 8,
-                                    color: Color.YELLOW,
-                                    outlineColor: Color.BLACK,
-                                    outlineWidth: 2
-                                }}
-                                label={{
-                                    text: `${Math.round(p.hae)}m`,
-                                    font: '12px sans-serif',
-                                    fillColor: Color.WHITE,
-                                    outlineColor: Color.BLACK,
-                                    outlineWidth: 2,
-                                    pixelOffset: new Cartesian2(0, -15),
-                                    verticalOrigin: VerticalOrigin.BOTTOM,
-                                    distanceDisplayCondition: new DistanceDisplayCondition(0, 10000)
-                                }}
+                {drones.map(drone => {
+                    const isMoving = !drone.isPaused && drone.route.length > 0;
+                    const isSelected = drone.id === editingRouteDroneId || drone.id === activeRouteDroneId || isMoving;
+                    
+                    return (
+                        <React.Fragment key={drone.id}>
+                            <MapDeviceEntity 
+                                point={drone.point} 
+                                name={drone.name} 
+                                isMoving={drone.isPaused} 
+                                sensorInfo={drone.sensorInfo}
+                                modelUri={drone.modelUri}
+                                isSelected={isSelected}
                             />
-                        ))}
-                    </React.Fragment>
-                ))}
+                            {drone.route.length > 0 && (
+                                <Entity name={`Route for ${drone.name}`}>
+                                    <PolylineGraphics
+                                        positions={[
+                                            Cartesian3.fromDegrees(drone.point.lon, drone.point.lat, drone.point.hae),
+                                            ...drone.route.map(p => Cartesian3.fromDegrees(p.lon, p.lat, p.hae))
+                                        ]}
+                                        width={3}
+                                        material={Color.YELLOW.withAlpha(0.6)}
+                                    />
+                                </Entity>
+                            )}
+                            {drone.route.map((p, index) => (
+                                <Entity
+                                    key={`${drone.id}-point-${index}`}
+                                    name={`${drone.name} - Point ${index + 1}`}
+                                    position={Cartesian3.fromDegrees(p.lon, p.lat, p.hae)}
+                                    point={{
+                                        pixelSize: 8,
+                                        color: Color.YELLOW,
+                                        outlineColor: Color.BLACK,
+                                        outlineWidth: 2
+                                    }}
+                                    label={{
+                                        text: `${Math.round(p.hae)}m`,
+                                        font: '12px sans-serif',
+                                        fillColor: Color.WHITE,
+                                        outlineColor: Color.BLACK,
+                                        outlineWidth: 2,
+                                        pixelOffset: new Cartesian2(0, -15),
+                                        verticalOrigin: VerticalOrigin.BOTTOM,
+                                        distanceDisplayCondition: new DistanceDisplayCondition(0, 10000)
+                                    }}
+                                />
+                            ))}
+                        </React.Fragment>
+                    );
+                })}
 
                 {tempInitialLocation && (
                     <Entity

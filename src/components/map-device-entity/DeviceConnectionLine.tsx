@@ -1,5 +1,5 @@
 // components/DeviceConnectionLine.tsx
-import { memo, type FC } from 'react';
+import React, { memo, type FC } from 'react';
 import {
   Cartesian3,
   Color,

@@ -1,11 +1,9 @@
-import React, { type FC, useEffect, useMemo, useState } from 'react';
+import React from 'react';
 
 import { Entity, ModelGraphics, useCesium } from 'resium';
-import { Cartographic } from 'cesium';
 import { SensorShadowArea } from './SensorShadowArea';
 import { Color } from 'cesium';
 import { Cartesian3 } from 'cesium';
-import { HeadingPitchRange } from 'cesium';
 import { FrustumVisualizer } from './FrustumVisualizer';
 import { SensorInfo } from '../../hooks/useDrones';
 import { ShadowMode } from 'cesium';
@@ -21,16 +19,16 @@ export const MapDeviceEntity = ({
   name, 
   isMoving, 
   sensorInfo, 
-  modelUri 
+  modelUri,
+  isSelected
 }: { 
   point: Point, 
   name?: string, 
   isMoving?: boolean, 
   sensorInfo: SensorInfo,
-  modelUri: string
+  modelUri: string,
+  isSelected: boolean
 }) => {
-
-  const { viewer } = useCesium();
 
   return (
     <>
@@ -52,7 +50,7 @@ export const MapDeviceEntity = ({
         <SensorShadowArea
           point={point}
           currentViewSensorInfo={sensorInfo}
-          isDeviceSelected={true}
+          isDeviceSelected={isSelected || isMoving || false}
         />
         <FrustumVisualizer
           point={point}
@@ -61,7 +59,7 @@ export const MapDeviceEntity = ({
           hfov={sensorInfo.hfov}
           vfov={sensorInfo.vfov}
           range={sensorInfo.range}
-          isDeviceSelected={true} />
+          isDeviceSelected={ isSelected || isMoving || false } />
       </Entity>
 
     </>
