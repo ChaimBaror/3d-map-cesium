@@ -26,6 +26,15 @@ const CesiumMap = () => {
     const cameraPositions = Cartesian3.fromDegrees(-73.9654, 40.7831, 2500)
 
     useEffect(() => {
+        if (activeRouteDroneId) {
+            const drone = drones.find(d => d.id === activeRouteDroneId);
+            if (drone && drone.route.length === 0) {
+                addPointToRoute(activeRouteDroneId, { ...drone.point });
+            }
+        }
+    }, [activeRouteDroneId]);
+
+    useEffect(() => {
         // Load terrain
         CesiumTerrainProvider.fromIonAssetId(1)
             .then(tp => {
@@ -94,6 +103,16 @@ const CesiumMap = () => {
         setTempInitialLocation(null);
     }, [addDrone]);
 
+    const handleClearRoute = useCallback((id: string) => {
+        clearRoute(id);
+        if (id === activeRouteDroneId) {
+            const drone = drones.find(d => d.id === id);
+            if (drone) {
+                addPointToRoute(id, { ...drone.point });
+            }
+        }
+    }, [activeRouteDroneId, clearRoute, drones, addPointToRoute]);
+
     return (
         <div style={{ width: '100%', height: '100vh', position: 'relative', background: '#000' }}>
             <Viewer
@@ -136,10 +155,13 @@ const CesiumMap = () => {
                             sensorInfo={drone.sensorInfo}
                             modelUri={drone.modelUri}
                         />
-                        {drone.route.length > 1 && (
+                        {drone.route.length > 0 && (
                             <Entity name={`Route for ${drone.name}`}>
                                 <PolylineGraphics
-                                    positions={drone.route.map(p => Cartesian3.fromDegrees(p.lon, p.lat, p.hae))}
+                                    positions={[
+                                        Cartesian3.fromDegrees(drone.point.lon, drone.point.lat, drone.point.hae),
+                                        ...drone.route.map(p => Cartesian3.fromDegrees(p.lon, p.lat, p.hae))
+                                    ]}
                                     width={3}
                                     material={Color.YELLOW.withAlpha(0.6)}
                                 />
@@ -201,7 +223,7 @@ const CesiumMap = () => {
                 onUpdateDrone={updateDrone}
                 activeRouteDroneId={activeRouteDroneId}
                 setActiveRouteDroneId={setActiveRouteDroneId}
-                onClearRoute={clearRoute}
+                onClearRoute={handleClearRoute}
                 onUpdateRoutePoint={updateRoutePoint}
                 onRemoveRoutePoint={removeRoutePoint}
                 isPickingInitialLocation={isPickingInitialLocation}

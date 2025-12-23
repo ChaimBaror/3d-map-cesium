@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Drone, Point, SensorInfo } from '../../hooks/useDrones';
 import { Viewer, useCesium } from 'resium';
-import { Cartesian3, HeadingPitchRoll, Math as CesiumMath } from 'cesium';
+import { Cartesian3, HeadingPitchRoll, Math as CesiumMath, PerspectiveFrustum } from 'cesium';
 import './DroneDashboard.css';
 
 interface DroneDashboardProps {
@@ -38,6 +38,16 @@ const CameraController: React.FC<{ drone: Drone }> = ({ drone }) => {
           roll: roll
         }
       });
+
+      // Set FOV (Cesium uses vertical FOV in radians)
+      if (viewer.camera.frustum instanceof PerspectiveFrustum) {
+        viewer.camera.frustum.fov = CesiumMath.toRadians(sensorInfo.vfov);
+        // Ensure aspect ratio matches the horizontal FOV if specified
+        if (sensorInfo.hfov > 0) {
+          viewer.camera.frustum.aspectRatio = Math.tan(CesiumMath.toRadians(sensorInfo.hfov) * 0.5) / 
+                                            Math.tan(CesiumMath.toRadians(sensorInfo.vfov) * 0.5);
+        }
+      }
     }
   }, [viewer, point, sensorInfo]);
 
@@ -109,6 +119,13 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
     }
   }, [editingRouteDroneId, activeRouteDroneId]);
 
+  const handleFinishRoute = () => {
+    if (activeRouteDroneId) {
+      onUpdateDrone(activeRouteDroneId, { isPaused: false });
+      setActiveRouteDroneId(null);
+    }
+  };
+
   const handleAdd = () => {
     if (!newName || !tempInitialLocation) return;
     onAddDrone({
@@ -124,7 +141,73 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
   };
 
   return (
-    <div className={`drone-dashboard ${isExpanded ? 'expanded' : 'collapsed'}`}>
+    <>
+      {activeRouteDroneId && (
+        <div className="route-planner-popup">
+          <div className="planner-header">
+            <div className="planner-title">
+              <span className="pulse-icon">📍</span>
+              תכנון מסלול טיסה
+            </div>
+            <div className="target-drone-name">
+              {drones.find(d => d.id === activeRouteDroneId)?.name}
+            </div>
+          </div>
+          <div className="planner-body">
+            <div className="points-stats">
+              <div className="stat-item">
+                <span className="stat-label">נקודות:</span>
+                <span className="stat-value">{drones.find(d => d.id === activeRouteDroneId)?.route.length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">מרחק משוער:</span>
+                <span className="stat-value">-- ק"מ</span>
+              </div>
+            </div>
+            
+            <div className="planner-points-list">
+              {drones.find(d => d.id === activeRouteDroneId)?.route.map((p, idx) => (
+                <div key={idx} className="planner-point-item">
+                  <span className="point-index">{idx + 1}</span>
+                  <div className="point-inputs">
+                    <input 
+                      type="number" 
+                      value={p.lat.toFixed(6)} 
+                      onChange={(e) => onUpdateRoutePoint(activeRouteDroneId, idx, { lat: Number(e.target.value) })}
+                      step="0.000001"
+                      title="Latitude"
+                    />
+                    <input 
+                      type="number" 
+                      value={p.lon.toFixed(6)} 
+                      onChange={(e) => onUpdateRoutePoint(activeRouteDroneId, idx, { lon: Number(e.target.value) })}
+                      step="0.000001"
+                      title="Longitude"
+                    />
+                    <input 
+                      type="number" 
+                      value={Math.round(p.hae)} 
+                      onChange={(e) => onUpdateRoutePoint(activeRouteDroneId, idx, { hae: Number(e.target.value) })}
+                      title="Altitude"
+                    />
+                  </div>
+                  <button className="remove-point-btn" onClick={() => onRemoveRoutePoint(activeRouteDroneId, idx)}>×</button>
+                </div>
+              ))}
+            </div>
+
+            <p className="planner-hint">לחץ על המפה כדי להוסיף נקודות ציון למסלול</p>
+          </div>
+          <div className="planner-footer">
+            <button className="secondary-btn" onClick={() => onClearRoute(activeRouteDroneId)}>נקה הכל</button>
+            <button className="primary-fly-btn" onClick={handleFinishRoute}>
+              סיום והמראה 🚀
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className={`drone-dashboard ${isExpanded ? 'expanded' : 'collapsed'} ${activeRouteDroneId ? 'hidden-during-routing' : ''}`}>
       <div className="dashboard-header" onClick={() => setIsExpanded(!isExpanded)}>
         <h3>{isExpanded ? 'מרכז שליטה' : '🛰️'}</h3>
         {isExpanded && (
@@ -137,16 +220,7 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
 
       {isExpanded && (
         <div className="dashboard-content">
-          {activeRouteDroneId ? (
-            <div className="route-mode-banner">
-              <span>הגדרת מסלול: {drones.find(d => d.id === activeRouteDroneId)?.name}</span>
-              <div className="route-actions">
-                <button onClick={() => onClearRoute(activeRouteDroneId)}>נקה הכל</button>
-                <button className="done-btn" onClick={() => setActiveRouteDroneId(null)}>אישור וסיום</button>
-              </div>
-              <p className="route-hint">לחץ על המפה להוספת נקודות טיסה</p>
-            </div>
-          ) : (
+          <ul className="drone-list">
             <div className="add-drone-section">
               <div className="section-title">כלי טיס חדש</div>
               <div className="add-drone-inputs">
@@ -187,9 +261,6 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
                 </button>
               </div>
             </div>
-          )}
-
-          <ul className="drone-list">
             {drones.map((drone) => (
               <li 
                 key={drone.id} 
@@ -224,7 +295,11 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
                   <div className="route-edit-panel">
                     <div className="drone-quick-actions">
                       <button onClick={(e) => { e.stopPropagation(); onJumpTo(drone); }} title="קפוץ אל">🎯 התמקד</button>
-                      <button onClick={(e) => { e.stopPropagation(); setActiveRouteDroneId(drone.id); }} title="הגדר מסלול">🛣️ צייר מסלול</button>
+                      <button onClick={(e) => { 
+                        e.stopPropagation(); 
+                        onUpdateDrone(drone.id, { isPaused: true }); 
+                        setActiveRouteDroneId(drone.id); 
+                      }} title="הגדר מסלול">🛣️ צייר מסלול</button>
                       <button onClick={(e) => { e.stopPropagation(); onRemoveDrone(drone.id); }} title="מחק" className="delete-drone-btn">🗑️ מחק</button>
                     </div>
                     <div className="speed-setting">
@@ -373,6 +448,7 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
         </div>
       )}
     </div>
+    </>
   );
 };
 

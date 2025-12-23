@@ -8,6 +8,7 @@ import { Cartesian3 } from 'cesium';
 import { HeadingPitchRange } from 'cesium';
 import { FrustumVisualizer } from './FrustumVisualizer';
 import { SensorInfo } from '../../hooks/useDrones';
+import { ShadowMode } from 'cesium';
 
 interface Point {
   lat: number;
@@ -40,6 +41,7 @@ export const MapDeviceEntity = ({
         <ModelGraphics
           uri={modelUri}
           scale={1.0}
+          shadows={ShadowMode.DISABLED}
           minimumPixelSize={64}
           maximumScale={20000}
           colorBlendAmount={0.5}

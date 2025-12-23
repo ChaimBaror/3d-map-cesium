@@ -47,7 +47,58 @@ export const useDrones = () => {
     },
   ]);
 
-  // ... (rest of the simulation effect stays the same)
+  // Simulation effect to move drones along their route
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDrones((prevDrones) =>
+        prevDrones.map((drone) => {
+          if (drone.isPaused || drone.route.length === 0) return drone;
+
+          // Target is the first point in the route
+          const target = drone.route[0];
+          const current = drone.point;
+          
+          // Speed km/h -> m/s / 20 (since interval is 50ms)
+          const distancePerInterval = (drone.speed * 1000) / 3600 * 0.05;
+
+          const dLat = target.lat - current.lat;
+          const dLon = target.lon - current.lon;
+          const dHae = target.hae - current.hae;
+          
+          const latRad = (current.lat * Math.PI) / 180;
+          const metersLat = dLat * 111320; // More precise
+          const metersLon = dLon * 111320 * Math.cos(latRad);
+          
+          const distanceMeters = Math.sqrt(metersLat * metersLat + metersLon * metersLon + dHae * dHae);
+
+          if (distanceMeters < distancePerInterval || distanceMeters < 0.1) {
+            // Reached target
+            const newRoute = drone.route.slice(1);
+            return { 
+              ...drone, 
+              point: { ...target }, 
+              route: newRoute 
+            };
+          }
+
+          // Move towards target
+          const ratio = distancePerInterval / (distanceMeters || 1);
+          const nextPoint = {
+            lat: current.lat + dLat * ratio,
+            lon: current.lon + dLon * ratio,
+            hae: current.hae + dHae * ratio,
+          };
+
+          return {
+            ...drone,
+            point: nextPoint,
+          };
+        })
+      );
+    }, 50); // Increased frequency for smoother movement
+
+    return () => clearInterval(interval);
+  }, []);
 
   const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo' | 'modelUri'>) => {
     let defaultModel = '/models/drone_yellow.glb';
