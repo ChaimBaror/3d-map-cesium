@@ -1,0 +1,391 @@
+:root {
+  --primary-color: #0078d4;
+  --primary-hover: #0086f0;
+  --bg-dark: rgba(20, 20, 20, 0.85);
+  --bg-card: rgba(45, 45, 45, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --accent-orange: #f39c12;
+  --danger: #e74c3c;
+}
+
+.drone-dashboard {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: var(--bg-dark);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-main);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  direction: rtl;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--border-color);
+}
+
+.drone-dashboard.collapsed {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drone-dashboard.collapsed:hover {
+  background: var(--primary-hover);
+  transform: scale(1.1);
+}
+
+.drone-dashboard.collapsed .dashboard-header {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drone-dashboard.collapsed h3 {
+  font-size: 24px;
+}
+
+.dashboard-header {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drone-count-badge {
+  background: var(--primary-color);
+  color: white;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.4);
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dashboard-content {
+  padding: 18px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.dashboard-content::-webkit-scrollbar {
+  width: 4px;
+}
+.dashboard-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.add-drone-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: var(--bg-card);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.add-drone-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.add-drone-section input, .add-drone-section select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.add-drone-section input:focus, .add-drone-section select:focus {
+  border-color: var(--primary-color);
+}
+
+.add-drone-speed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.add-drone-speed input {
+  width: 70px;
+  text-align: center;
+}
+
+.add-drone-location {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.pick-location-btn {
+  flex: 1;
+  background: #3a3a3a !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+.pick-location-btn.active {
+  background: var(--accent-orange) !important;
+  box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+}
+
+.submit-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.submit-btn:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.drone-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drone-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.drone-item:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  background: rgba(60, 60, 60, 0.7);
+}
+
+.drone-item.active-route {
+  border-color: var(--primary-color);
+  background: rgba(0, 120, 212, 0.15);
+}
+
+.drone-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.drone-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.drone-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.drone-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.drone-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.drone-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.drone-actions button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drone-actions button:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.drone-actions button[title="מחק"]:hover {
+  background: rgba(231, 76, 60, 0.2);
+  color: var(--danger);
+  border-color: rgba(231, 76, 60, 0.4);
+}
+
+.speed-control input {
+  width: 42px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* Route Mode Banner */
+.route-mode-banner {
+  background: var(--primary-color);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+  text-align: center;
+}
+
+.route-mode-banner span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.route-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.route-actions button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.route-actions button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.route-actions button.done-btn {
+  background: white;
+  color: var(--primary-color);
+  border: none;
+  font-weight: 700;
+}
+
+.route-hint {
+  font-size: 11px;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--accent-orange);
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.drone-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}

@@ -22,9 +22,7 @@ const MODEL_CONFIG = {
   silhouetteAlpha: 0.3,
 } as const;
 
-export const MapDeviceEntity = ({ point: initialPoint }: { point: Point }) => {
-
-  const [point, setPoint] = useState(initialPoint);
+export const MapDeviceEntity = ({ point, name }: { point: Point, name?: string }) => {
 
   const currentViewSensorInfo = {
     hfov: 60,
@@ -36,62 +34,10 @@ export const MapDeviceEntity = ({ point: initialPoint }: { point: Point }) => {
 
   const { viewer } = useCesium();
 
-  const getRandomDelta = () => (Math.random() - 0.9) * 0.00001;
-
-  const movePointRandomly = () => {
-    setPoint((prevPoint) => {
-      const random = Math.random();
-
-      let newLat = prevPoint.lat;
-      let newLon = prevPoint.lon;
-      let newHae = prevPoint.hae;
-
-      if (random < 0.5) {
-        newLat += getRandomDelta();
-      }
-      if (random < 0.8) {
-        newLon += getRandomDelta();
-      }
-      if (random < 0.9) {
-        newHae += getRandomDelta();
-      }
-
-      return {
-        ...prevPoint,
-        lat: newLat,
-        lon: newLon,
-        hae: newHae,
-      };
-    });
-  };
-  // ---
-  // Flight Experience: Update the camera to follow the drone
-
-  // ---
-
-  useEffect(() => {
-    const intervalId = setInterval(movePointRandomly, 3000);
-    // Cleanup function to clear the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array ensures this effect runs only once
-
-  // Memoize sanitizedPoint to ensure referential stability
-  const memoizedSanitizedPoint = useMemo(() => {
-    const cartographic = Cartographic.fromDegrees(point.lon, point.lat, 0);
-    const heightGlobe = viewer
-      ? viewer.scene.globe.getHeight(cartographic)
-      : 0;
-
-    return {
-      ...point,
-      hae: point.hae ? point.hae + (heightGlobe ?? 0) : 0,
-    };
-  }, [point, viewer]);
-
   return (
     <>
       <Entity
-        name="My Marker"
+        name={name || "My Marker"}
         position={Cartesian3.fromDegrees(point.lon, point.lat, point.hae)}
       // point={{ pixelSize: 15, color: Color.RED }}
       >

@@ -2,54 +2,62 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  width: 48px;
-  height: 48px;
-  background: rgba(42, 42, 42, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  width: 42px;
+  height: 42px;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  font-size: 24px;
+  border-radius: 10px;
+  font-size: 18px;
+  color: white;
   cursor: pointer;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .toggle-search-button:hover {
-  background: rgba(52, 52, 52, 0.95);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .coordinate-search {
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(42, 42, 42, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 8px;
-  padding: 16px;
-  min-width: 280px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  padding: 18px;
+  min-width: 300px;
   z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .coordinate-search-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .coordinate-search-header h3 {
   margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
+  color: white;
+  font-size: 16px;
   font-weight: 600;
   text-align: right;
   direction: rtl;
@@ -58,108 +66,88 @@
 .close-button {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 28px;
-  line-height: 1;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 24px;
   cursor: pointer;
-  padding: 0;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s;
 }
 
 .close-button:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 1);
+  color: white;
 }
 
 .coordinate-search-inputs {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .input-group label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
   text-align: right;
   direction: rtl;
+  font-weight: 500;
 }
 
 .input-group input {
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
   background: rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.9);
+  color: white;
   font-size: 14px;
   direction: ltr;
   text-align: left;
-  transition: border-color 0.2s, background-color 0.2s;
+  outline: none;
+  transition: all 0.2s;
 }
 
 .input-group input:focus {
-  outline: none;
-  border-color: rgba(100, 150, 255, 0.6);
+  border-color: #0078d4;
   background: rgba(0, 0, 0, 0.5);
 }
 
-.input-group input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
 .jump-button {
-  padding: 10px 16px;
-  background: rgba(100, 150, 255, 0.8);
+  padding: 12px;
+  background: #0078d4;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  margin-top: 8px;
-  direction: rtl;
+  transition: all 0.2s;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
 }
 
 .jump-button:hover {
-  background: rgba(100, 150, 255, 1);
+  background: #0086f0;
   transform: translateY(-1px);
 }
 
-.jump-button:active {
-  transform: translateY(0);
-}
-
 .error-message {
-  color: rgba(255, 100, 100, 0.9);
+  color: #ff4d4d;
   font-size: 12px;
-  padding: 8px;
-  background: rgba(255, 100, 100, 0.1);
-  border-radius: 4px;
+  padding: 10px;
+  background: rgba(255, 77, 77, 0.1);
+  border-radius: 6px;
   text-align: right;
   direction: rtl;
-  margin-top: 4px;
+  margin-top: 6px;
+  border: 1px solid rgba(255, 77, 77, 0.2);
 }
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .coordinate-search {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    min-width: auto;
-    max-width: calc(100% - 20px);
-  }
-}
-
