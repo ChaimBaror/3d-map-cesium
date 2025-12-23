@@ -89,7 +89,7 @@ const CesiumMap = () => {
         }
     }, [activeRouteDroneId, addPointToRoute, isPickingInitialLocation]);
 
-    const handleAddDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo'>) => {
+    const handleAddDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo' | 'modelUri'>) => {
         addDrone(drone);
         setTempInitialLocation(null);
     }, [addDrone]);
@@ -134,6 +134,7 @@ const CesiumMap = () => {
                             name={drone.name} 
                             isMoving={!drone.isPaused && drone.route.length > 0} 
                             sensorInfo={drone.sensorInfo}
+                            modelUri={drone.modelUri}
                         />
                         {drone.route.length > 1 && (
                             <Entity name={`Route for ${drone.name}`}>

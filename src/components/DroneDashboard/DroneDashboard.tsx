@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Drone, Point, SensorInfo } from '../../hooks/useDrones';
 import { Viewer, useCesium } from 'resium';
 import { Cartesian3, HeadingPitchRoll, Math as CesiumMath } from 'cesium';
@@ -6,7 +6,7 @@ import './DroneDashboard.css';
 
 interface DroneDashboardProps {
   drones: Drone[];
-  onAddDrone: (drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo'>) => void;
+  onAddDrone: (drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo' | 'modelUri'>) => void;
   onJumpTo: (drone: Drone) => void;
   onRemoveDrone: (id: string) => void;
   onUpdateDrone: (id: string, updates: Partial<Drone>) => void;
@@ -65,6 +65,8 @@ const DroneCameraView: React.FC<{ drone: Drone }> = ({ drone }) => {
       >
         <CameraController drone={drone} />
       </Viewer>
+      {/* Invisible overlay to block interactions */}
+      <div className="camera-interaction-blocker" />
       <div className="camera-overlay">
         <div className="camera-crosshair">+</div>
         <div className="camera-info">
@@ -95,6 +97,17 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
   const [newType, setNewType] = useState<'drone' | 'plane' | 'helicopter'>('drone');
   const [newSpeed, setNewSpeed] = useState(20);
   const [editingRouteDroneId, setEditingRouteDroneId] = useState<string | null>(null);
+  const droneRefs = useRef<{ [key: string]: HTMLLIElement | null }>({});
+
+  useEffect(() => {
+    const targetId = editingRouteDroneId || activeRouteDroneId;
+    if (targetId && droneRefs.current[targetId]) {
+      droneRefs.current[targetId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [editingRouteDroneId, activeRouteDroneId]);
 
   const handleAdd = () => {
     if (!newName || !tempInitialLocation) return;
@@ -178,7 +191,11 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
 
           <ul className="drone-list">
             {drones.map((drone) => (
-              <li key={drone.id} className={`drone-item ${activeRouteDroneId === drone.id ? 'active-route' : ''} ${editingRouteDroneId === drone.id ? 'expanded' : ''}`}>
+              <li 
+                key={drone.id} 
+                ref={el => { droneRefs.current[drone.id] = el; }}
+                className={`drone-item ${activeRouteDroneId === drone.id ? 'active-route' : ''} ${editingRouteDroneId === drone.id ? 'expanded' : ''}`}
+              >
                 <div className="drone-item-main" onClick={() => setEditingRouteDroneId(editingRouteDroneId === drone.id ? null : drone.id)}>
                   <div className="drone-info">
                     <span className="drone-icon">
@@ -224,6 +241,18 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
                     <div className="sensor-settings">
                       <div className="point-title">הגדרות מצלמה (מפתח)</div>
                       <div className="sensor-controls">
+                        <div className="control-group">
+                          <label>דגם תלת-ממד:</label>
+                          <select 
+                            value={drone.modelUri} 
+                            onChange={(e) => onUpdateDrone(drone.id, { modelUri: e.target.value })}
+                            className="model-select"
+                          >
+                            <option value="/models/drone_yellow.glb">רחפן צהוב</option>
+                            <option value="/models/drone.glb">רחפן סטנדרטי</option>
+                            <option value="/models/base_basic_pbr.glb">מטוס / בסיס</option>
+                          </select>
+                        </div>
                         <div className="control-group">
                           <label>אזימוט: {drone.sensorInfo.azimuth}°</label>
                           <input 

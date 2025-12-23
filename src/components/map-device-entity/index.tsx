@@ -15,15 +15,19 @@ interface Point {
   hae: number;
 }
 
-const MODEL_CONFIG = {
-  uri: '/models/drone_yellow.glb',
-  minimumPixelSize: 30,
-  maximumScale: 20,
-  colorBlendAmount: 0.5,
-  silhouetteAlpha: 0.3,
-} as const;
-
-export const MapDeviceEntity = ({ point, name, isMoving, sensorInfo }: { point: Point, name?: string, isMoving?: boolean, sensorInfo: SensorInfo }) => {
+export const MapDeviceEntity = ({ 
+  point, 
+  name, 
+  isMoving, 
+  sensorInfo, 
+  modelUri 
+}: { 
+  point: Point, 
+  name?: string, 
+  isMoving?: boolean, 
+  sensorInfo: SensorInfo,
+  modelUri: string
+}) => {
 
   const { viewer } = useCesium();
 
@@ -34,7 +38,7 @@ export const MapDeviceEntity = ({ point, name, isMoving, sensorInfo }: { point: 
         position={Cartesian3.fromDegrees(point.lon, point.lat, point.hae)}
       >
         <ModelGraphics
-          uri={MODEL_CONFIG.uri}
+          uri={modelUri}
           scale={1.0}
           minimumPixelSize={64}
           maximumScale={20000}

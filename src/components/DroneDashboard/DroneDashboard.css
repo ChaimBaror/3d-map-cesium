@@ -308,6 +308,16 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.camera-interaction-blocker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: transparent;
+}
+
 .camera-overlay {
   position: absolute;
   top: 0;
@@ -315,6 +325,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -347,10 +358,20 @@
   border-radius: 8px;
 }
 
-.sensor-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.model-select {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+.model-select:focus {
+  border-color: var(--primary-color);
 }
 
 .control-group {
@@ -493,8 +514,13 @@
   transform: scale(1.2);
 }
 
-.drone-item.expanded {
+.drone-item.expanded,
+.drone-item.active-route {
   border-color: var(--primary-color);
+  background: rgba(0, 120, 212, 0.1);
+}
+
+.drone-item.expanded {
   background: rgba(255, 255, 255, 0.03);
 }
 

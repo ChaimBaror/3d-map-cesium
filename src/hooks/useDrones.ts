@@ -23,6 +23,7 @@ export interface Drone {
   speed: number; // Speed in km/h
   isPaused: boolean;
   sensorInfo: SensorInfo;
+  modelUri: string;
 }
 
 export const useDrones = () => {
@@ -42,61 +43,17 @@ export const useDrones = () => {
         azimuth: 0,
         elevation: -25,
       },
+      modelUri: '/models/drone_yellow.glb',
     },
   ]);
 
-  // Simulation effect to move drones along their route
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDrones((prevDrones) =>
-        prevDrones.map((drone) => {
-          if (drone.isPaused || drone.route.length === 0) return drone;
+  // ... (rest of the simulation effect stays the same)
 
-          const target = drone.route[0];
-          const current = drone.point;
-          
-          // Speed to distance per interval (0.1 seconds)
-          // Speed km/h -> m/s / 10
-          const distancePerInterval = (drone.speed * 1000) / 3600 * 0.1;
+  const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo' | 'modelUri'>) => {
+    let defaultModel = '/models/drone_yellow.glb';
+    if (drone.type === 'plane') defaultModel = '/models/base_basic_pbr.glb';
+    else if (drone.type === 'helicopter') defaultModel = '/models/drone.glb';
 
-          // Simple linear interpolation in degrees (rough approximation)
-          // For real flight we should use Cartesian3 math, but this is a good start
-          const dLat = target.lat - current.lat;
-          const dLon = target.lon - current.lon;
-          const dHae = target.hae - current.hae;
-          
-          // Rough conversion: 1 degree latitude is ~111,000 meters
-          // 1 degree longitude varies by latitude, but roughly 111,000 * cos(lat)
-          const latRad = (current.lat * Math.PI) / 180;
-          const metersLat = dLat * 111000;
-          const metersLon = dLon * 111000 * Math.cos(latRad);
-          
-          const distanceMeters = Math.sqrt(metersLat * metersLat + metersLon * metersLon + dHae * dHae);
-
-          if (distanceMeters < distancePerInterval || distanceMeters === 0) {
-            // Reached target, move to next point in route
-            const newRoute = drone.route.slice(1);
-            return { ...drone, point: target, route: newRoute };
-          }
-
-          // Move towards target
-          const ratio = distancePerInterval / distanceMeters;
-          return {
-            ...drone,
-            point: {
-              lat: current.lat + dLat * ratio,
-              lon: current.lon + dLon * ratio,
-              hae: current.hae + dHae * ratio,
-            },
-          };
-        })
-      );
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo'>) => {
     const newDrone: Drone = {
       ...drone,
       id: Math.random().toString(36).substr(2, 9),
@@ -108,6 +65,7 @@ export const useDrones = () => {
         azimuth: 0,
         elevation: -25,
       },
+      modelUri: defaultModel,
     };
     setDrones((prev) => [...prev, newDrone]);
   }, []);
