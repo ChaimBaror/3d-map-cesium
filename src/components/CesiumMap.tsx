@@ -129,7 +129,11 @@ const CesiumMap = () => {
 
                 {drones.map(drone => (
                     <React.Fragment key={drone.id}>
-                        <MapDeviceEntity point={drone.point} name={drone.name} />
+                        <MapDeviceEntity 
+                            point={drone.point} 
+                            name={drone.name} 
+                            isMoving={!drone.isPaused && drone.route.length > 0} 
+                        />
                         {drone.route.length > 1 && (
                             <Entity name={`Route for ${drone.name}`}>
                                 <PolylineGraphics

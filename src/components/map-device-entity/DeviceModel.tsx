@@ -39,6 +39,7 @@ interface DeviceModelProps {
   isInTheAir?: boolean;
   isAlertShown?: boolean;
   status?: DeviceStatusEnum;
+  isMoving?: boolean;
   event?: {
     spatialOrientation?: {
       attitude?: {
@@ -156,7 +157,7 @@ export const DeviceModel: FC<DeviceModelProps> = memo(
               show={isDeviceSelected}
               colorBlendAmount={0.5}
               silhouetteColor={Color.YELLOWGREEN} // Set silhouette color
-              silhouetteSize={2.0} // Set silhouette size
+              silhouetteSize={isMoving ? 2.0 : 0.0} // Set silhouette size only when moving
             />
           )}
 

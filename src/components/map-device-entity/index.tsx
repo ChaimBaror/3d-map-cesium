@@ -22,7 +22,7 @@ const MODEL_CONFIG = {
   silhouetteAlpha: 0.3,
 } as const;
 
-export const MapDeviceEntity = ({ point, name }: { point: Point, name?: string }) => {
+export const MapDeviceEntity = ({ point, name, isMoving }: { point: Point, name?: string, isMoving?: boolean }) => {
 
   const currentViewSensorInfo = {
     hfov: 60,
@@ -48,7 +48,7 @@ export const MapDeviceEntity = ({ point, name }: { point: Point, name?: string }
           maximumScale={20000}
           colorBlendAmount={0.5}
           silhouetteColor={Color.YELLOWGREEN}
-          silhouetteSize={2.0}
+          silhouetteSize={isMoving ? 2.0 : 0.0}
         />
 
         <SensorShadowArea

@@ -138,6 +138,13 @@ const DroneDashboard: React.FC<DroneDashboardProps> = ({
                       title="מהירות טיסה"
                     />
                   </div>
+                  <button 
+                    onClick={() => onUpdateDrone(drone.id, { isPaused: !drone.isPaused })} 
+                    title={drone.isPaused ? "המשך תנועה" : "עצור תנועה"}
+                    className={drone.isPaused ? "paused-btn" : "playing-btn"}
+                  >
+                    {drone.isPaused ? "▶️" : "⏸️"}
+                  </button>
                   <button onClick={() => setActiveRouteDroneId(drone.id)} title="הגדר מסלול">🛣️</button>
                   <button onClick={() => onJumpTo(drone)} title="קפוץ אל">🎯</button>
                   <button onClick={() => onRemoveDrone(drone.id)} title="מחק">🗑️</button>

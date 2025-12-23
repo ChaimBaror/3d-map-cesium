@@ -13,6 +13,7 @@ export interface Drone {
   point: Point;
   route: Point[];
   speed: number; // Speed in km/h
+  isPaused: boolean;
 }
 
 export const useDrones = () => {
@@ -24,6 +25,7 @@ export const useDrones = () => {
       point: { lat: 40.7831, lon: -73.9844, hae: 150 },
       route: [],
       speed: 20,
+      isPaused: false,
     },
   ]);
 
@@ -32,7 +34,7 @@ export const useDrones = () => {
     const interval = setInterval(() => {
       setDrones((prevDrones) =>
         prevDrones.map((drone) => {
-          if (drone.route.length === 0) return drone;
+          if (drone.isPaused || drone.route.length === 0) return drone;
 
           const target = drone.route[0];
           const current = drone.point;
@@ -78,10 +80,11 @@ export const useDrones = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const addDrone = useCallback((drone: Omit<Drone, 'id'>) => {
-    const newDrone = {
+  const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused'>) => {
+    const newDrone: Drone = {
       ...drone,
       id: Math.random().toString(36).substr(2, 9),
+      isPaused: false,
     };
     setDrones((prev) => [...prev, newDrone]);
   }, []);
