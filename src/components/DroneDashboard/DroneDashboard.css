@@ -308,6 +308,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.drone-camera-view .cesium-viewer-bottom {
+  display: none !important;
+}
+
 .camera-interaction-blocker {
   position: absolute;
   top: 0;
