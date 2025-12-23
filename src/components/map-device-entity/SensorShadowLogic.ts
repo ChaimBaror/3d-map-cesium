@@ -54,7 +54,7 @@ interface WebGLContext {
   drawingBufferHeight: number;
 }
 interface SensorShadowOptions {
-  cameraPosition: Point;
+  cameraPosition: Point | Cartesian3 | Property;
   viewAreaColor?: Color;
   shadowAreaColor?: Color;
   alpha?: number;
@@ -140,20 +140,60 @@ export class SensorShadow {
     this._addToScene();
   }
 
-  private _initializeProperties(options: SensorShadowOptions): void {
-    // Convert cameraPosition input to Cartesian3 if needed
+  updateOptions(options: SensorShadowOptions): void {
+    // Update properties without creating new objects where possible
     if (this._isCameraInputPosition(options.cameraPosition)) {
+      const position = Cartesian3.fromDegrees(
+        options.cameraPosition.lon,
+        options.cameraPosition.lat,
+        options.cameraPosition.hae ?? 0,
+      );
+      if ((this._cameraPosition as any) instanceof ConstantPositionProperty) {
+        (this._cameraPosition as any).setValue(position);
+      } else {
+        this._cameraPosition = new ConstantPositionProperty(position);
+      }
+    } else if ((options.cameraPosition as any) instanceof Cartesian3) {
+      if ((this._cameraPosition as any) instanceof ConstantPositionProperty) {
+        (this._cameraPosition as any).setValue(options.cameraPosition);
+      } else {
+        this._cameraPosition = new ConstantPositionProperty(
+          options.cameraPosition as Cartesian3,
+        );
+      }
+    }
+
+    if (options.viewAreaColor) this._viewAreaColor = options.viewAreaColor;
+    if (options.shadowAreaColor) this._shadowAreaColor = options.shadowAreaColor;
+    if (options.alpha !== undefined) this._alpha = options.alpha;
+    if (options.shadowAlpha !== undefined) this._shadowAlpha = options.shadowAlpha;
+    if (options.depthBias !== undefined) this._depthBias = options.depthBias;
+    if (options.sensorParameters) {
+      this._sensorParameters = {
+        ...this._sensorParameters,
+        ...options.sensorParameters,
+      };
+    }
+  }
+
+  private _initializeProperties(options: SensorShadowOptions): void {
+    const cameraPos = options.cameraPosition;
+    // Convert cameraPosition input to Cartesian3 if needed
+    if (this._isCameraInputPosition(cameraPos)) {
       this._cameraPosition = new ConstantPositionProperty(
         Cartesian3.fromDegrees(
-          options.cameraPosition.lon,
-          options.cameraPosition.lat,
-          options.cameraPosition.hae ?? 0,
+          cameraPos.lon,
+          cameraPos.lat,
+          cameraPos.hae ?? 0,
         ),
       );
-    } else {
+    } else if ((cameraPos as any) instanceof Cartesian3) {
       this._cameraPosition = new ConstantPositionProperty(
-        options.cameraPosition,
+        cameraPos as Cartesian3,
       );
+    } else {
+      // It's already a Property
+      this._cameraPosition = cameraPos as Property;
     }
 
     this._viewAreaColor = defaultValue(
@@ -177,7 +217,7 @@ export class SensorShadow {
   private _isCameraInputPosition(
     position: Point | Cartesian3 | Property | undefined,
   ): position is Point {
-    return (position as Point)?.hae !== undefined;
+    return (position as Point)?.lat !== undefined && (position as Point)?.lon !== undefined;
   }
 
   /**

@@ -160,18 +160,19 @@ export const SensorShadowArea = ({
     }
 
     try {
-      cleanupSensorShadow();
-      sensorShadowRef.current = new SensorShadow(
-        viewer,
-        sensorConfig,
-        fsShader,
-      );
+      if (sensorShadowRef.current) {
+        sensorShadowRef.current.updateOptions(sensorConfig);
+      } else {
+        sensorShadowRef.current = new SensorShadow(
+          viewer,
+          sensorConfig,
+          fsShader,
+        );
+      }
     } catch (err) {
       console.error('Failed to create SensorShadow:', err);
       cleanupSensorShadow();
     }
-
-    return cleanupSensorShadow;
   }, [
     viewer,
     fsShader,
