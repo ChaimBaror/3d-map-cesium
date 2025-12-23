@@ -1,4 +1,4 @@
-import { type FC, useEffect, useMemo, useState } from 'react';
+import React, { type FC, useEffect, useMemo, useState } from 'react';
 
 import { Entity, ModelGraphics, useCesium } from 'resium';
 import { Cartographic } from 'cesium';
@@ -7,6 +7,7 @@ import { Color } from 'cesium';
 import { Cartesian3 } from 'cesium';
 import { HeadingPitchRange } from 'cesium';
 import { FrustumVisualizer } from './FrustumVisualizer';
+import { SensorInfo } from '../../hooks/useDrones';
 
 interface Point {
   lat: number;
@@ -22,15 +23,7 @@ const MODEL_CONFIG = {
   silhouetteAlpha: 0.3,
 } as const;
 
-export const MapDeviceEntity = ({ point, name, isMoving }: { point: Point, name?: string, isMoving?: boolean }) => {
-
-  const currentViewSensorInfo = {
-    hfov: 60,
-    vfov: 20,
-    range: point.hae + 700,
-    azimuth: 0,
-    elevation: -25,
-  }
+export const MapDeviceEntity = ({ point, name, isMoving, sensorInfo }: { point: Point, name?: string, isMoving?: boolean, sensorInfo: SensorInfo }) => {
 
   const { viewer } = useCesium();
 
@@ -39,7 +32,6 @@ export const MapDeviceEntity = ({ point, name, isMoving }: { point: Point, name?
       <Entity
         name={name || "My Marker"}
         position={Cartesian3.fromDegrees(point.lon, point.lat, point.hae)}
-      // point={{ pixelSize: 15, color: Color.RED }}
       >
         <ModelGraphics
           uri={MODEL_CONFIG.uri}
@@ -53,16 +45,16 @@ export const MapDeviceEntity = ({ point, name, isMoving }: { point: Point, name?
 
         <SensorShadowArea
           point={point}
-          currentViewSensorInfo={currentViewSensorInfo}
+          currentViewSensorInfo={sensorInfo}
           isDeviceSelected={true}
         />
         <FrustumVisualizer
           point={point}
-          azimuth={currentViewSensorInfo?.azimuth ?? 0}
-          elevation={currentViewSensorInfo?.elevation ?? 0}
-          hfov={currentViewSensorInfo?.hfov ?? 0}
-          vfov={currentViewSensorInfo?.vfov ?? 0}
-          range={currentViewSensorInfo.range}
+          azimuth={sensorInfo.azimuth}
+          elevation={sensorInfo.elevation}
+          hfov={sensorInfo.hfov}
+          vfov={sensorInfo.vfov}
+          range={sensorInfo.range}
           isDeviceSelected={true} />
       </Entity>
 

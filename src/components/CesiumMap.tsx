@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Viewer, CameraFlyTo, Cesium3DTileset, Entity, PolylineGraphics } from "resium";
-import { Cartesian3, CesiumTerrainProvider, Ion, IonResource, Viewer as CesiumViewer, Color, Cartographic, ColorMaterialProperty } from "cesium";
+import { Cartesian3, CesiumTerrainProvider, Ion, IonResource, Viewer as CesiumViewer, Color, Cartographic, ColorMaterialProperty, Cartesian2, VerticalOrigin, DistanceDisplayCondition } from "cesium";
 import { MapDeviceEntity } from "./map-device-entity";
 import CompassComponent from "./Compass/CompassComponent";
 import CoordinateSearch from "./CoordinateSearch";
@@ -20,7 +20,7 @@ const CesiumMap = () => {
     const [tempInitialLocation, setTempInitialLocation] = useState<Point | null>(null);
     const [terrainTileset, setTerrainTileset] = useState<any>(null);
 
-    const { drones, addDrone, removeDrone, updateDrone, addPointToRoute, clearRoute } = useDrones();
+    const { drones, addDrone, removeDrone, updateDrone, addPointToRoute, clearRoute, updateRoutePoint, removeRoutePoint } = useDrones();
     const viewerRef = useRef<CesiumViewer | null>(null);
 
     const cameraPositions = Cartesian3.fromDegrees(-73.9654, 40.7831, 2500)
@@ -89,7 +89,7 @@ const CesiumMap = () => {
         }
     }, [activeRouteDroneId, addPointToRoute, isPickingInitialLocation]);
 
-    const handleAddDrone = useCallback((drone: Omit<Drone, 'id'>) => {
+    const handleAddDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo'>) => {
         addDrone(drone);
         setTempInitialLocation(null);
     }, [addDrone]);
@@ -133,6 +133,7 @@ const CesiumMap = () => {
                             point={drone.point} 
                             name={drone.name} 
                             isMoving={!drone.isPaused && drone.route.length > 0} 
+                            sensorInfo={drone.sensorInfo}
                         />
                         {drone.route.length > 1 && (
                             <Entity name={`Route for ${drone.name}`}>
@@ -143,6 +144,29 @@ const CesiumMap = () => {
                                 />
                             </Entity>
                         )}
+                        {drone.route.map((p, index) => (
+                            <Entity
+                                key={`${drone.id}-point-${index}`}
+                                name={`${drone.name} - Point ${index + 1}`}
+                                position={Cartesian3.fromDegrees(p.lon, p.lat, p.hae)}
+                                point={{
+                                    pixelSize: 8,
+                                    color: Color.YELLOW,
+                                    outlineColor: Color.BLACK,
+                                    outlineWidth: 2
+                                }}
+                                label={{
+                                    text: `${Math.round(p.hae)}m`,
+                                    font: '12px sans-serif',
+                                    fillColor: Color.WHITE,
+                                    outlineColor: Color.BLACK,
+                                    outlineWidth: 2,
+                                    pixelOffset: new Cartesian2(0, -15),
+                                    verticalOrigin: VerticalOrigin.BOTTOM,
+                                    distanceDisplayCondition: new DistanceDisplayCondition(0, 10000)
+                                }}
+                            />
+                        ))}
                     </React.Fragment>
                 ))}
 
@@ -177,6 +201,8 @@ const CesiumMap = () => {
                 activeRouteDroneId={activeRouteDroneId}
                 setActiveRouteDroneId={setActiveRouteDroneId}
                 onClearRoute={clearRoute}
+                onUpdateRoutePoint={updateRoutePoint}
+                onRemoveRoutePoint={removeRoutePoint}
                 isPickingInitialLocation={isPickingInitialLocation}
                 setIsPickingInitialLocation={setIsPickingInitialLocation}
                 tempInitialLocation={tempInitialLocation}

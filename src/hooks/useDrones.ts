@@ -6,6 +6,14 @@ export interface Point {
   hae: number;
 }
 
+export interface SensorInfo {
+  hfov: number;
+  vfov: number;
+  range: number;
+  azimuth: number;
+  elevation: number;
+}
+
 export interface Drone {
   id: string;
   name: string;
@@ -14,6 +22,7 @@ export interface Drone {
   route: Point[];
   speed: number; // Speed in km/h
   isPaused: boolean;
+  sensorInfo: SensorInfo;
 }
 
 export const useDrones = () => {
@@ -26,6 +35,13 @@ export const useDrones = () => {
       route: [],
       speed: 20,
       isPaused: false,
+      sensorInfo: {
+        hfov: 60,
+        vfov: 40,
+        range: 1000,
+        azimuth: 0,
+        elevation: -25,
+      },
     },
   ]);
 
@@ -80,11 +96,18 @@ export const useDrones = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused'>) => {
+  const addDrone = useCallback((drone: Omit<Drone, 'id' | 'isPaused' | 'sensorInfo'>) => {
     const newDrone: Drone = {
       ...drone,
       id: Math.random().toString(36).substr(2, 9),
       isPaused: false,
+      sensorInfo: {
+        hfov: 60,
+        vfov: 40,
+        range: 1000,
+        azimuth: 0,
+        elevation: -25,
+      },
     };
     setDrones((prev) => [...prev, newDrone]);
   }, []);
@@ -111,6 +134,27 @@ export const useDrones = () => {
     );
   }, []);
 
+  const updateRoutePoint = useCallback((droneId: string, pointIndex: number, updates: Partial<Point>) => {
+    setDrones((prev) =>
+      prev.map((d) => {
+        if (d.id !== droneId) return d;
+        const newRoute = [...d.route];
+        newRoute[pointIndex] = { ...newRoute[pointIndex], ...updates };
+        return { ...d, route: newRoute };
+      })
+    );
+  }, []);
+
+  const removeRoutePoint = useCallback((droneId: string, pointIndex: number) => {
+    setDrones((prev) =>
+      prev.map((d) => {
+        if (d.id !== droneId) return d;
+        const newRoute = d.route.filter((_, i) => i !== pointIndex);
+        return { ...d, route: newRoute };
+      })
+    );
+  }, []);
+
   return {
     drones,
     addDrone,
@@ -118,6 +162,8 @@ export const useDrones = () => {
     removeDrone,
     clearRoute,
     addPointToRoute,
+    updateRoutePoint,
+    removeRoutePoint,
   };
 };
 
