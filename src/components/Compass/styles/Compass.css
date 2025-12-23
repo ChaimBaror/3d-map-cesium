@@ -1,0 +1,90 @@
+.cesium-compass {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 145px;
+  height: 145px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.cesium-compass .out-ring-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.cesium-compass .out-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s ease;
+  -webkit-transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.cesium-compass .out-ring svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cesium-compass .gyro {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+  transition: transform 0.1s ease;
+  -webkit-transition: transform 0.1s ease;
+  pointer-events: none;
+}
+
+.cesium-compass .gyro svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cesium-compass .gyro.gyro-active {
+  opacity: 0.8;
+}
+
+.cesium-compass .rotation_marker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-top: -10px;
+  margin-left: -10px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  -webkit-transition: opacity 0.2s ease;
+}
+
+.cesium-compass .rotation_marker svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cesium-compass:hover .out-ring {
+  transform: scale(1.17);
+  -webkit-transform: scale(1.17);
+}
+
+.cesium-compass:active .out-ring {
+  transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+}
+

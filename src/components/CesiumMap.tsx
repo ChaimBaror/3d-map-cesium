@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Viewer, CameraFlyTo, Cesium3DTileset } from "resium";
 import { Cartesian3, CesiumTerrainProvider, Ion, IonResource } from "cesium";
 import { MapDeviceEntity } from "./map-device-entity";
+import CompassComponent from "./Compass/CompassComponent";
+import CoordinateSearch from "./CoordinateSearch";
+import MapControls from "./MapControls";
 
 
 
@@ -11,6 +14,7 @@ const p2 = { lat: 40.7951, lon: -73.9664, hae: 220 }
 
 
 const CesiumMap = () => {
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const cesiumIonToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMzBhZTlmMy00ZDQ4LTRmMGQtYjEzNy1mNWZkNTBmZTc5YmQiLCJpZCI6MjkwNjk3LCJpYXQiOjE3NDM2ODgxNDJ9.6CszVte8ux1ipX1fLH0EAVBS5L2m_lzpi0-H80Nf_LA"
 
     if (cesiumIonToken) {
@@ -23,7 +27,7 @@ const CesiumMap = () => {
 
     return (
         <Viewer
-            style={{ width: '100%', height: 'calc(100vh)' }}
+            style={{ width: '100%', height: '100vh', margin: 0, padding: 0, position: 'absolute', top: 0, left: 0 }}
             geocoder={false}
             animation={false}
             sceneModePicker={false}
@@ -37,6 +41,7 @@ const CesiumMap = () => {
             <CameraFlyTo
                 destination={cameraPositions}
                 duration={2}
+                once={true}
                 orientation={{
                     heading: 2.0,
                     pitch: -Math.PI / 10,
@@ -62,7 +67,9 @@ const CesiumMap = () => {
                 }
             />
 
-
+            <CompassComponent />
+            <CoordinateSearch isOpen={isSearchOpen} onToggle={() => setIsSearchOpen(!isSearchOpen)} />
+            <MapControls />
 
         </Viewer>
     );
