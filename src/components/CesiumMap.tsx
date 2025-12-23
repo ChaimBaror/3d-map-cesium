@@ -53,6 +53,9 @@ const CesiumMap = () => {
     }, []);
 
     const handleMapClick = useCallback((movement: any) => {
+        // Close search popup on map click
+        setIsSearchOpen(false);
+
         if (!viewerRef.current) return;
 
         const scene = viewerRef.current.scene;
